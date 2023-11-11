@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import * as dotenv from "dotenv";
-import { Ballot, Ballot__factory } from "../typechain-types";
+import { TokenizedBallot, TokenizedBallot__factory } from "../typechain-types";
 dotenv.config();
 
 async function main() {
@@ -9,7 +9,7 @@ async function main() {
   if (!parameters || parameters.length < 2)
     throw new Error("Parameters not provided");
   const contractAddress = parameters[0];
-  const proposalNumber = parameters[1];
+  const accountAddress = parameters[1];
 
   //inspecting data from public blockchains using RPC connections (configuring the provider)
   const provider = new ethers.JsonRpcProvider(
@@ -23,7 +23,7 @@ async function main() {
     `Last block timestamp: ${lastBlockTimestamp} (${lastBlockDate.toLocaleDateString()} ${lastBlockDate.toLocaleTimeString()})`
   );
   //configuring the wallet - metamask wallet
-  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY ?? "", provider);
+  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY_1 ?? "", provider);
 
   console.log(`Using address ${wallet.address}`);
   const balanceBN = await provider.getBalance(wallet.address);
@@ -34,11 +34,14 @@ async function main() {
   }
 
   //attaching the smart contract using Typechain
-  const ballotFactory = new Ballot__factory(wallet);
-  const ballotContract = ballotFactory.attach(contractAddress) as Ballot;
-  const tx = await ballotContract.vote(proposalNumber);
-  const receipt = await tx.wait();
-  console.log(`Transaction completed ${receipt?.hash}`);
+  const ballotFactory = new TokenizedBallot__factory(wallet);
+  const ballotContract = ballotFactory.attach(
+    contractAddress
+  ) as TokenizedBallot;
+  const VotesAfter = await ballotContract.votingPower(accountAddress);
+  console.log(
+    `Account 0xE30B0e8ee4c8BA5Ff81368f0A069DC04548dFCb3 has ${VotesAfter.toString()} units of voting power after self delegating\n`
+  );
 }
 
 main().catch((error) => {

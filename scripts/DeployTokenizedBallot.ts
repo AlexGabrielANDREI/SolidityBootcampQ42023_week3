@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import * as dotenv from "dotenv";
-import { Ballot__factory } from "../typechain-types";
+import { TokenizedBallot__factory } from "../typechain-types";
 dotenv.config();
 
 async function main() {
@@ -13,6 +13,7 @@ async function main() {
   proposals.forEach((element, index) => {
     console.log(`Proposal N. ${index + 1}: ${element}`);
   });
+
   //inspecting data from public blockchains using RPC connections (configuring the provider)
   const provider = new ethers.JsonRpcProvider(
     process.env.RPC_ENDPOINT_URL ?? ""
@@ -36,9 +37,11 @@ async function main() {
   }
 
   //deploying the smart contract using Typechain
-  const ballotFactory = new Ballot__factory(wallet);
+  const ballotFactory = new TokenizedBallot__factory(wallet);
   const ballotContract = await ballotFactory.deploy(
-    proposals.map(ethers.encodeBytes32String)
+    proposals.map(ethers.encodeBytes32String),
+    "0x3A9D9D13D324138D439fAf727Cde2D2Ee332C36C",
+    "4672716"
   );
   await ballotContract.waitForDeployment();
   console.log(`Contract deployed to ${ballotContract.target}`);
