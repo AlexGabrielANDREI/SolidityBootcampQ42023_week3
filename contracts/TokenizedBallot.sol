@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.7.0 <0.9.0;
+pragma solidity >=0.8.20;
 
 interface IMyToken {
     function getPastVotes(address, uint256) external view returns (uint256);
@@ -10,6 +10,7 @@ contract TokenizedBallot {
         bytes32 name;
         uint voteCount;
     }
+    mapping(address => uint256) public voted;
 
     IMyToken public targetContract;
     Proposal[] public proposals;
@@ -38,16 +39,20 @@ contract TokenizedBallot {
     }
 
     function vote(uint256 proposal, uint256 amount) external {
+        uint256 consumedVotingPower = voted[msg.sender];
+
         require(
-            votingPower(msg.sender) >= amount,
+            votingPower(msg.sender, consumedVotingPower) >= amount,
             "TokenizedBallot: trying to vote more than allowed"
         );
+        
         proposals[proposal].voteCount += amount;
+        voted[msg.sender] = consumedVotingPower + amount;
     }
 
-    function votingPower(address account) public view returns (uint256) {
-        return targetContract.getPastVotes(account, targetBlockNumber);
-        //TODO: check if this is enough for protecting the contract
+    function votingPower(address account, uint256 consumedVotingPower) public view returns (uint256) {
+        // return targetContract.getPastVotes(account, targetBlockNumber);
+        return (targetContract.getPastVotes(account, targetBlockNumber) - consumedVotingPower);
     }
 
     function winningProposal() public view returns (uint winningProposal_) {

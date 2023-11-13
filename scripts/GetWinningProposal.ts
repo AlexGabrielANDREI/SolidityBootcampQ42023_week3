@@ -32,9 +32,10 @@ async function main() {
   const ballotContract = ballotFactory.attach(
     contractAddress
   ) as TokenizedBallot;
+  const WinnerIndex = await ballotContract.winningProposal(); 
   const WinnerName = await ballotContract.winnerName();
   console.log(
-    `The current winning proposal is: ${ethers.decodeBytes32String(WinnerName)}\n`
+    `The current winning proposal is: ${ethers.decodeBytes32String(WinnerName)} - Index: ${WinnerIndex} \n`
   );
 }
 

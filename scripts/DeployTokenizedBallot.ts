@@ -31,7 +31,7 @@ async function main() {
   //configuring the wallet - metamask wallet
   const wallet = new ethers.Wallet(process.env.PRIVATE_KEY ?? "", provider);
 
-  console.log(`Using address ${wallet.address}`);
+  console.log(`Using wallet ${wallet.address}`);
   const balanceBN = await provider.getBalance(wallet.address);
   const balance = Number(ethers.formatUnits(balanceBN));
   console.log(`Wallet balance ${balance} ETH`);
@@ -44,11 +44,10 @@ async function main() {
   const ballotContract = await ballotFactory.deploy(
     proposals.map(ethers.encodeBytes32String),
     MYTOKEN_CONTRACT_ADDRESS,
-    "4684215"
+    "4685737"
   );
   await ballotContract.waitForDeployment();
   console.log(`Contract deployed to ${ballotContract.target}`);
-
   for (let index = 0; index < proposals.length; index++) {
     const proposal = await ballotContract.proposals(index);
     const name = ethers.decodeBytes32String(proposal.name);

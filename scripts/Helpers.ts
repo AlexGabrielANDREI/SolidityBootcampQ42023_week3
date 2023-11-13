@@ -11,6 +11,6 @@ export function getProvider(){
 export function getWalletAddress(provider:ethers.JsonRpcProvider){
     //configuring the wallet - metamask wallet
     const wallet = new ethers.Wallet(process.env.PRIVATE_KEY ?? "", provider);
-    console.log(`Using address ${wallet.address}`);
+    console.log(`Using wallet ${wallet.address}`);
     return wallet;
 }

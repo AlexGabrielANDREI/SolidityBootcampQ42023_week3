@@ -6,15 +6,17 @@ dotenv.config();
 async function main() {
   //receiving parameters
   const parameters = process.argv.slice(2);
-  if (!parameters || parameters.length < 2)
+  if (!parameters || parameters.length < 3)
     throw new Error("Parameters not provided");
   const contractAddress = parameters[0];
   const proposalNumber = parameters[1];
-  const amount = ethers.parseUnits("0.005");
+  const voteAmount = parameters[2];
+  const amount = ethers.parseUnits(voteAmount);
 
   console.log(
     `Ballot contract address: ${contractAddress}\n`,
     `Option chosen: ${proposalNumber}\n`,
+    `Vote amount: ${voteAmount}\n`,
   )
 
   //inspecting data from public blockchains using RPC connections (configuring the provider)
@@ -47,6 +49,12 @@ async function main() {
   const tx = await ballotContract.vote(proposalNumber, amount);
   const receipt = await tx.wait();
   console.log(`Transaction completed ${receipt?.hash}`);
+
+  const WinnerIndex = await ballotContract.winningProposal(); 
+  const WinnerName = await ballotContract.winnerName();
+  console.log(
+    `The current winning proposal is: ${ethers.decodeBytes32String(WinnerName)} - Index: ${WinnerIndex} \n`
+  );
 }
 
 main().catch((error) => {
