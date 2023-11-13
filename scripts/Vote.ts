@@ -10,7 +10,12 @@ async function main() {
     throw new Error("Parameters not provided");
   const contractAddress = parameters[0];
   const proposalNumber = parameters[1];
-  const amount = ethers.parseUnits("0.4");
+  const amount = ethers.parseUnits("0.005");
+
+  console.log(
+    `Ballot contract address: ${contractAddress}\n`,
+    `Option chosen: ${proposalNumber}\n`,
+  )
 
   //inspecting data from public blockchains using RPC connections (configuring the provider)
   const provider = new ethers.JsonRpcProvider(
@@ -24,7 +29,7 @@ async function main() {
     `Last block timestamp: ${lastBlockTimestamp} (${lastBlockDate.toLocaleDateString()} ${lastBlockDate.toLocaleTimeString()})`
   );
   //configuring the wallet - metamask wallet
-  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY_1 ?? "", provider);
+  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY ?? "", provider);
 
   console.log(`Using address ${wallet.address}`);
   const balanceBN = await provider.getBalance(wallet.address);

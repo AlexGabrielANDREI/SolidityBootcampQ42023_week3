@@ -11,7 +11,7 @@ async function main() {
     if (!parameters || parameters.length < 2)
         throw new Error("Parameters not provided");
     const contractAddress = parameters[0];
-    const adressToDelegateVotingPower = parameters[1];
+    const adressToTransfer = parameters[1];
 
     //inspecting data from public blockchains using RPC connections (configuring the provider)
     const provider = new ethers.JsonRpcProvider(
@@ -41,20 +41,23 @@ async function main() {
         contractAddress
     ) as MyToken;
 
+    //experimenting a token transfer - it is not possible to double spent votes
+    const transferTx = await VotingPowerTokensContract
+        .connect(wallet)
+        .transfer(adressToTransfer, MINT_VALUE / 10n)
+
+    await transferTx.wait();
+
     const votes1AfterTransfer = await VotingPowerTokensContract.getVotes(wallet.address);
     console.log(
         `Account ${wallet.address
-        } has ${votes1AfterTransfer.toString()} units of voting power before delegating\n`
+        } has ${votes1AfterTransfer.toString()} units of voting power after transferring\n`
     );
     
-    // Delegate
-    const delegateTx = await VotingPowerTokensContract.connect(wallet).delegate(adressToDelegateVotingPower);
-    await delegateTx.wait();
-    const votesAfter = await VotingPowerTokensContract.getVotes(adressToDelegateVotingPower);
-
+    const votes2AfterTransfer = await VotingPowerTokensContract.getVotes(adressToTransfer);
     console.log(
-        `Account ${adressToDelegateVotingPower
-        } has ${votesAfter.toString()} units of voting power after delegating\n`
+        `Account ${adressToTransfer
+        } has ${votes2AfterTransfer.toString()} units of voting power after receiving a transfer\n`
     );
 
 }

@@ -3,6 +3,9 @@ import * as dotenv from "dotenv";
 import { TokenizedBallot__factory } from "../typechain-types";
 dotenv.config();
 
+
+const MYTOKEN_CONTRACT_ADDRESS = "0x83D094e3A9980113153B5015d2FEF9C62725B901";
+
 async function main() {
   //receiving parameters
   const proposals = process.argv.slice(2);
@@ -40,11 +43,12 @@ async function main() {
   const ballotFactory = new TokenizedBallot__factory(wallet);
   const ballotContract = await ballotFactory.deploy(
     proposals.map(ethers.encodeBytes32String),
-    "0x3A9D9D13D324138D439fAf727Cde2D2Ee332C36C",
-    "4672716"
+    MYTOKEN_CONTRACT_ADDRESS,
+    "4684215"
   );
   await ballotContract.waitForDeployment();
   console.log(`Contract deployed to ${ballotContract.target}`);
+
   for (let index = 0; index < proposals.length; index++) {
     const proposal = await ballotContract.proposals(index);
     const name = ethers.decodeBytes32String(proposal.name);

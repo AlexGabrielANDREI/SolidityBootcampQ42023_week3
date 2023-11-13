@@ -3,6 +3,7 @@ import { TokenizedBallot, TokenizedBallot__factory } from "../typechain-types";
 import { getProvider, getWalletAddress } from "./Helpers";
 
 async function main() {
+  
   //receiving parameters
   const parameters = process.argv.slice(2);
   if (!parameters || parameters.length < 1)
@@ -15,34 +16,25 @@ async function main() {
 
   const provider = getProvider();
 
-  //inspecting data from public blockchains using RPC connections (configuring the provider)
-  const lastBlock = await provider.getBlock("latest");
-  console.log(`Last block number: ${lastBlock?.number}`);
-  const lastBlockTimestamp = lastBlock?.timestamp ?? 0;
-  const lastBlockDate = new Date(lastBlockTimestamp * 1000);
-  console.log(
-    `Last block timestamp: ${lastBlockTimestamp}`
-  );
-
   //configuring the wallet - metamask wallet
   const wallet = getWalletAddress(provider);
   const accountAddress = wallet.address;
 
-  const balanceBN = await provider.getBalance(wallet.address);
-  const balance = Number(ethers.formatUnits(balanceBN));
-  console.log(`Wallet balance ${balance} ETH`);
-  if (balance < 0.01) {
-    throw new Error("Not enough ether");
-  }
+  // const balanceBN = await provider.getBalance(wallet.address);
+  // const balance = Number(ethers.formatUnits(balanceBN));
+  // console.log(`Wallet balance ${balance} ETH`);
+  // if (balance < 0.01) {
+  //   throw new Error("Not enough ether");
+  // }
   
   //attaching the smart contract using Typechain
   const ballotFactory = new TokenizedBallot__factory(wallet);
   const ballotContract = ballotFactory.attach(
     contractAddress
   ) as TokenizedBallot;
-  const VotesAfter = await ballotContract.votingPower(accountAddress);
+  const WinnerName = await ballotContract.winnerName();
   console.log(
-    `Account ${accountAddress} has ${VotesAfter.toString()} units of voting power after self delegating\n`
+    `The current winning proposal is: ${ethers.decodeBytes32String(WinnerName)}\n`
   );
 }
 
